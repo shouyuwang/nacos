@@ -48,22 +48,28 @@ public class ServiceNameFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
         try {
+            // 从请求参数中获取serviceName
             String serviceName = request.getParameter(CommonParams.SERVICE_NAME);
             
             if (StringUtils.isNotBlank(serviceName)) {
                 serviceName = serviceName.trim();
             }
+            // 从请求参数中获取groupName
             String groupName = request.getParameter(CommonParams.GROUP_NAME);
             if (StringUtils.isBlank(groupName)) {
+                // 请求中的groupName为空的话，设置groupName为DEFAULT_GROUP
                 groupName = Constants.DEFAULT_GROUP;
             }
             
             // use groupName@@serviceName as new service name:
             String groupedServiceName = serviceName;
+            // 校验serviceName是否包含@@
             if (StringUtils.isNotBlank(serviceName) && !serviceName.contains(Constants.SERVICE_INFO_SPLITER)) {
+                // 不包含@@的话，进行重新设置groupedServiceName= groupName@@serviceName
                 groupedServiceName = groupName + Constants.SERVICE_INFO_SPLITER + serviceName;
             }
             OverrideParameterRequestWrapper requestWrapper = OverrideParameterRequestWrapper.buildRequest(request);
+            // 覆盖request中的serviceName属性
             requestWrapper.addParameter(CommonParams.SERVICE_NAME, groupedServiceName);
             filterChain.doFilter(requestWrapper, servletResponse);
         } catch (Exception e) {

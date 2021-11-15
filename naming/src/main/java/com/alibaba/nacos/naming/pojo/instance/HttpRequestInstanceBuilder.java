@@ -90,20 +90,30 @@ public class HttpRequestInstanceBuilder {
     }
     
     private void setAttributesToBuilder(HttpServletRequest request) throws NacosException {
+        // serviceName
         actualBuilder.setServiceName(WebUtils.required(request, CommonParams.SERVICE_NAME));
+        // ip
         actualBuilder.setIp(WebUtils.required(request, "ip"));
+        // 端口
         actualBuilder.setPort(Integer.parseInt(WebUtils.required(request, "port")));
+        // 是否健康，默认为true
         actualBuilder.setHealthy(ConvertUtils.toBoolean(WebUtils.optional(request, "healthy", "true")));
+        // ephemeral
         actualBuilder.setEphemeral(ConvertUtils
                 .toBoolean(WebUtils.optional(request, "ephemeral", String.valueOf(defaultInstanceEphemeral))));
+        // 权重
         setWeight(request);
+        // 集群
         setCluster(request);
+        // 是否可用
         setEnabled(request);
+        // metadata
         setMetadata(request);
     }
     
     private void setWeight(HttpServletRequest request) throws NacosException {
         double weight = Double.parseDouble(WebUtils.optional(request, "weight", "1"));
+        // 权重校验
         if (weight > Constants.MAX_WEIGHT_VALUE || weight < Constants.MIN_WEIGHT_VALUE) {
             throw new NacosException(NacosException.INVALID_PARAM,
                     "instance format invalid: The weights range from " + Constants.MIN_WEIGHT_VALUE + " to "
@@ -114,6 +124,7 @@ public class HttpRequestInstanceBuilder {
     
     private void setCluster(HttpServletRequest request) {
         String cluster = WebUtils.optional(request, CommonParams.CLUSTER_NAME, StringUtils.EMPTY);
+        // 如果cluster为空，设置cluster=DEFAULT
         if (StringUtils.isBlank(cluster)) {
             cluster = WebUtils.optional(request, "cluster", UtilsAndCommons.DEFAULT_CLUSTER_NAME);
         }
@@ -123,6 +134,7 @@ public class HttpRequestInstanceBuilder {
     private void setEnabled(HttpServletRequest request) {
         String enabledString = WebUtils.optional(request, "enabled", StringUtils.EMPTY);
         boolean enabled;
+        // 是否启用，默认为true
         if (StringUtils.isBlank(enabledString)) {
             enabled = ConvertUtils.toBoolean(WebUtils.optional(request, "enable", "true"));
         } else {
@@ -133,6 +145,7 @@ public class HttpRequestInstanceBuilder {
     
     private void setMetadata(HttpServletRequest request) throws NacosException {
         String metadata = WebUtils.optional(request, "metadata", StringUtils.EMPTY);
+        // 设置元数据信息
         if (StringUtils.isNotEmpty(metadata)) {
             actualBuilder.setMetadata(UtilsAndCommons.parseMetadata(metadata));
         }

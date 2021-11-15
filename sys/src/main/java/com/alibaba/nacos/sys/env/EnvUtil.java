@@ -217,6 +217,7 @@ public class EnvUtil {
      */
     public static boolean getStandaloneMode() {
         if (Objects.isNull(isStandalone)) {
+            // 读取常量中的${nacos.standalone}属性
             isStandalone = Boolean.getBoolean(Constants.STANDALONE_MODE_PROPERTY_NAME);
         }
         return isStandalone;

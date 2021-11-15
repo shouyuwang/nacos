@@ -35,6 +35,7 @@ public class EphemeralIpPortClientFactory implements ClientFactory<IpPortBasedCl
     
     @Override
     public IpPortBasedClient newClient(String clientId, ClientAttributes attributes) {
+        // 创建一个IpPortBasedClient
         return new IpPortBasedClient(clientId, true);
     }
     

@@ -99,6 +99,7 @@ public class UpgradeJudgement extends Subscriber<MembersChangeEvent> {
         this.doubleWriteDelayTaskEngine = doubleWriteDelayTaskEngine;
         Boolean upgraded = upgradeStates.isUpgraded();
         upgraded = upgraded != null && upgraded;
+        // 获取启动模式是否为standalone
         boolean isStandaloneMode = EnvUtil.getStandaloneMode();
         if (isStandaloneMode || upgraded) {
             useGrpcFeatures.set(true);
@@ -108,6 +109,7 @@ public class UpgradeJudgement extends Subscriber<MembersChangeEvent> {
         if (!isStandaloneMode) {
             initUpgradeChecker();
         }
+        // 注册subscriber
         NotifyCenter.registerSubscriber(this);
     }
     

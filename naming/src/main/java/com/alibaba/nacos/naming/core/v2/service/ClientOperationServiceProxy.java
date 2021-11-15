@@ -46,7 +46,11 @@ public class ClientOperationServiceProxy implements ClientOperationService {
     
     @Override
     public void registerInstance(Service service, Instance instance, String clientId) {
+        // 根据instance进行查找ClientOperationService
+        // 如果instance为ephemeral则返回为EphemeralClientOperationServiceImpl
+        // 如果instance不为ephemeral则返回PersistentClientOperationServiceImpl
         final ClientOperationService operationService = chooseClientOperationService(instance);
+        // 注册实例
         operationService.registerInstance(service, instance, clientId);
     }
     
@@ -73,6 +77,7 @@ public class ClientOperationServiceProxy implements ClientOperationService {
     }
     
     private ClientOperationService chooseClientOperationService(final Instance instance) {
+        // 判断是否是持久化
         return instance.isEphemeral() ? ephemeralClientOperationService : persistentClientOperationService;
     }
 }

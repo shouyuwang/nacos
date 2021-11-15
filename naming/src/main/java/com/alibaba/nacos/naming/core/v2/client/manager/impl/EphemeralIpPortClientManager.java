@@ -58,19 +58,26 @@ public class EphemeralIpPortClientManager implements ClientManager {
         this.distroMapper = distroMapper;
         GlobalExecutor.scheduleExpiredClientCleaner(new ExpiredClientCleaner(this, switchDomain), 0,
                 Constants.DEFAULT_HEART_BEAT_INTERVAL, TimeUnit.MILLISECONDS);
+        // 通过工厂创建ephemeralIpPort的clientFactory
         clientFactory = ClientFactoryHolder.getInstance().findClientFactory(ClientConstants.EPHEMERAL_IP_PORT);
     }
     
     @Override
     public boolean clientConnected(String clientId, ClientAttributes attributes) {
+        // 通过clientFactory创建新的client
+        // ephemeralIpPort对应的clientFactory为EphemeralIpPortClientFactory
+        // 连接客户端
         return clientConnected(clientFactory.newClient(clientId, attributes));
     }
     
     @Override
     public boolean clientConnected(final Client client) {
+        // 如果clientId不在clients中，进行put
         clients.computeIfAbsent(client.getClientId(), s -> {
             Loggers.SRV_LOG.info("Client connection {} connect", client.getClientId());
+            // client转换为IpPortBasedClient
             IpPortBasedClient ipPortBasedClient = (IpPortBasedClient) client;
+            // 初始化，这时候就启动了定时心跳检测
             ipPortBasedClient.init();
             return ipPortBasedClient;
         });
@@ -96,6 +103,7 @@ public class EphemeralIpPortClientManager implements ClientManager {
     
     @Override
     public Client getClient(String clientId) {
+        // 获取client信息
         return clients.get(clientId);
     }
     

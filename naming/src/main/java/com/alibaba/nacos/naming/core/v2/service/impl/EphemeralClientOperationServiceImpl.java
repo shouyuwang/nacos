@@ -42,20 +42,29 @@ public class EphemeralClientOperationServiceImpl implements ClientOperationServi
     private final ClientManager clientManager;
     
     public EphemeralClientOperationServiceImpl(ClientManagerDelegate clientManager) {
+        // 注入clientManger为ClientManagerDelegate
         this.clientManager = clientManager;
     }
     
     @Override
     public void registerInstance(Service service, Instance instance, String clientId) {
+        // 获取服务信息
         Service singleton = ServiceManager.getInstance().getSingleton(service);
+        // 获取client信息
         Client client = clientManager.getClient(clientId);
+        // 校验client信息是否合法
         if (!clientIsLegal(client, clientId)) {
             return;
         }
+        // 获取实例publishInfo
         InstancePublishInfo instanceInfo = getPublishInfo(instance);
+        // 添加服务实例
         client.addServiceInstance(singleton, instanceInfo);
+        // 设置最后更新时间
         client.setLastUpdatedTime();
+        // 发布ClientRegisterServiceEvent事件
         NotifyCenter.publishEvent(new ClientOperationEvent.ClientRegisterServiceEvent(singleton, clientId));
+        // 发布InstanceMetadataEvent事件
         NotifyCenter
                 .publishEvent(new MetadataEvent.InstanceMetadataEvent(singleton, instanceInfo.getMetadataId(), false));
     }

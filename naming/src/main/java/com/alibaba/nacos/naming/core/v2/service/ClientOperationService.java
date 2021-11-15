@@ -78,7 +78,9 @@ public interface ClientOperationService {
      * @return {@link InstancePublishInfo}
      */
     default InstancePublishInfo getPublishInfo(Instance instance) {
+        // 构建publish信息
         InstancePublishInfo result = new InstancePublishInfo(instance.getIp(), instance.getPort());
+        // 设置publish的拓展的信息
         if (null != instance.getMetadata() && !instance.getMetadata().isEmpty()) {
             result.getExtendDatum().putAll(instance.getMetadata());
         }

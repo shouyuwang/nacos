@@ -73,6 +73,7 @@ import static com.alibaba.nacos.naming.misc.UtilsAndCommons.DEFAULT_CLUSTER_NAME
  * @author nkorange
  */
 @RestController
+// @RequestMapping("/v1/ns/instance")
 @RequestMapping(UtilsAndCommons.NACOS_NAMING_CONTEXT + UtilsAndCommons.NACOS_NAMING_INSTANCE_CONTEXT)
 public class InstanceController {
     
@@ -104,15 +105,19 @@ public class InstanceController {
     @PostMapping
     @Secured(parser = NamingResourceParser.class, action = ActionTypes.WRITE)
     public String register(HttpServletRequest request) throws Exception {
-        
+
+        // 获取namespaceId，默认为public
         final String namespaceId = WebUtils
                 .optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
+        // 获取serviceName
         final String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
+        // 校验serviceName
         NamingUtils.checkServiceNameFormat(serviceName);
-        
+
+        // 创建instance信息
         final Instance instance = HttpRequestInstanceBuilder.newBuilder()
                 .setDefaultInstanceEphemeral(switchDomain.isDefaultInstanceEphemeral()).setRequest(request).build();
-        
+        // 注册实例信息
         getInstanceOperator().registerInstance(namespaceId, serviceName, instance);
         return "ok";
     }
@@ -441,6 +446,7 @@ public class InstanceController {
     }
     
     private InstanceOperator getInstanceOperator() {
+        // 判断是v1请求还是v2请求
         return upgradeJudgement.isUseGrpcFeatures() ? instanceServiceV2 : instanceServiceV1;
     }
 }

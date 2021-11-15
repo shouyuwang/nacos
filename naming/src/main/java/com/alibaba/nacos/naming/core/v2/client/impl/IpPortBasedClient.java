@@ -53,6 +53,7 @@ public class IpPortBasedClient extends AbstractClient {
     public IpPortBasedClient(String clientId, boolean ephemeral) {
         this.ephemeral = ephemeral;
         this.clientId = clientId;
+        // 设置responsibleId为ip+port
         this.responsibleId = getResponsibleTagFromId();
     }
     
@@ -81,6 +82,7 @@ public class IpPortBasedClient extends AbstractClient {
     
     @Override
     public boolean addServiceInstance(Service service, InstancePublishInfo instancePublishInfo) {
+        // 添加服务
         return super.addServiceInstance(service, parseToHealthCheckInstance(instancePublishInfo));
     }
     
@@ -126,8 +128,11 @@ public class IpPortBasedClient extends AbstractClient {
      * Init client.
      */
     public void init() {
+        // 是否为ephemeral
         if (ephemeral) {
+            // 创建心跳检测任务
             beatCheckTask = new ClientBeatCheckTaskV2(this);
+            // 执行心跳检测
             HealthCheckReactor.scheduleCheck(beatCheckTask);
         } else {
             healthCheckTaskV2 = new HealthCheckTaskV2(this);

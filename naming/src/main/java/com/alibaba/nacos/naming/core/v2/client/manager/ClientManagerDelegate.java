@@ -52,6 +52,9 @@ public class ClientManagerDelegate implements ClientManager {
     
     @Override
     public boolean clientConnected(String clientId, ClientAttributes attributes) {
+        // 根据clientId获取具体执行的clientManager
+        // 如果clientId为临时的则取出来的clientManager为ephemeralIpPortClientManager
+        // 如果clientId为持久化的则取出来的clientManger为persistentIpPortClientManager
         return getClientManagerById(clientId).clientConnected(clientId, attributes);
     }
     
@@ -72,11 +75,13 @@ public class ClientManagerDelegate implements ClientManager {
     
     @Override
     public Client getClient(String clientId) {
+        // 根据clientId获取clientManager
         return getClientManagerById(clientId).getClient(clientId);
     }
     
     @Override
     public boolean contains(String clientId) {
+        // 从各个ClientManager中查找clientId
         return connectionBasedClientManager.contains(clientId) || ephemeralIpPortClientManager.contains(clientId)
                 || persistentIpPortClientManager.contains(clientId);
     }
@@ -101,13 +106,16 @@ public class ClientManagerDelegate implements ClientManager {
     }
     
     private ClientManager getClientManagerById(String clientId) {
+        // 判断是否为基础的client
         if (isConnectionBasedClient(clientId)) {
             return connectionBasedClientManager;
         }
+        // 判断是否为持久化的clientId，
         return clientId.endsWith(ClientConstants.PERSISTENT_SUFFIX) ? persistentIpPortClientManager : ephemeralIpPortClientManager;
     }
     
     private boolean isConnectionBasedClient(String clientId) {
+        // clientId中不包含#
         return !clientId.contains(IpPortBasedClient.ID_DELIMITER);
     }
 }

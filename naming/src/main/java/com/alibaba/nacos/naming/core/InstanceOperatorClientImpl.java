@@ -83,7 +83,9 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
             ClientOperationServiceProxy clientOperationService, ServiceStorage serviceStorage,
             NamingMetadataOperateService metadataOperateService, NamingMetadataManager metadataManager,
             SwitchDomain switchDomain, UdpPushService pushService) {
+        // 指定ClientManagerDelegate为clientManager
         this.clientManager = clientManager;
+        // 指定ClientOperationServiceProxy为clientOperationService
         this.clientOperationService = clientOperationService;
         this.serviceStorage = serviceStorage;
         this.metadataOperateService = metadataOperateService;
@@ -98,9 +100,13 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
     @Override
     public void registerInstance(String namespaceId, String serviceName, Instance instance) {
         boolean ephemeral = instance.isEphemeral();
+        // 获取clientId，clientId= inetaddr#ephemeral
         String clientId = IpPortBasedClient.getClientId(instance.toInetAddr(), ephemeral);
+        // 创建客户端
         createIpPortClientIfAbsent(clientId);
+        // 获取service信息
         Service service = getService(namespaceId, serviceName, ephemeral);
+        // 注册服务实例
         clientOperationService.registerInstance(service, instance, clientId);
     }
     
@@ -321,14 +327,19 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
     }
     
     private void createIpPortClientIfAbsent(String clientId) {
+        // 从clientManager中判断是否包含客户端
         if (!clientManager.contains(clientId)) {
+            // 注册clientId
             clientManager.clientConnected(clientId, new ClientAttributes());
         }
     }
     
     private Service getService(String namespaceId, String serviceName, boolean ephemeral) {
+        // 获取groupName
         String groupName = NamingUtils.getGroupName(serviceName);
+        // 获取serviceName
         String serviceNameNoGrouped = NamingUtils.getServiceName(serviceName);
+        // 创建service
         return Service.newService(namespaceId, groupName, serviceNameNoGrouped, ephemeral);
     }
     

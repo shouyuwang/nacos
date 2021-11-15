@@ -30,19 +30,24 @@ import java.util.HashMap;
  * @author xiweng.yy
  */
 public class ClientFactoryHolder {
-    
+
+    // 创建client工厂
     private static final ClientFactoryHolder INSTANCE = new ClientFactoryHolder();
     
     private final HashMap<String, ClientFactory> clientFactories;
     
     private ClientFactoryHolder() {
         clientFactories = new HashMap<>(4);
+        // spi加载clientFactory
+        // resources/META-INF/services/com.alibaba.nacos.naming.core.v2.client.factory.ClientFactory
         Collection<ClientFactory> clientFactories = NacosServiceLoader.load(ClientFactory.class);
         for (ClientFactory each : clientFactories) {
             if (this.clientFactories.containsKey(each.getType())) {
                 Loggers.SRV_LOG.warn("Client type {} found multiple factory, use {} default", each.getType(),
                         each.getClass().getCanonicalName());
             }
+            // key=type
+            // value=client
             this.clientFactories.put(each.getType(), each);
         }
     }
@@ -58,6 +63,7 @@ public class ClientFactoryHolder {
      * @return target type {@link ClientFactory}, if not fount, return 'default' client factory.
      */
     public ClientFactory findClientFactory(String type) {
+        // 根据类型获取clientFactory
         if (StringUtils.isEmpty(type) || !clientFactories.containsKey(type)) {
             return clientFactories.get(ClientConstants.DEFAULT_FACTORY);
         }

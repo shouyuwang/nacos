@@ -102,6 +102,7 @@ public class UpgradeStates extends Subscriber<UpgradeStates.UpgradeStateChangedE
      * @return Has been upgraded
      */
     public Boolean isUpgraded() {
+        // 读取配置中的upgraded
         String value = properties.getProperty(UPGRADED_KEY);
         if (value == null) {
             return null;

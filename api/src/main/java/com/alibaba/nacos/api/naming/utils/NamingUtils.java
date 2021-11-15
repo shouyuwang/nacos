@@ -67,9 +67,11 @@ public class NamingUtils {
         if (StringUtils.isBlank(serviceNameWithGroup)) {
             return StringUtils.EMPTY;
         }
+        // 如果serviceNameWithGroup中不包含@@，则返回默认DEFAULT_GROUP
         if (!serviceNameWithGroup.contains(Constants.SERVICE_INFO_SPLITER)) {
             return Constants.DEFAULT_GROUP;
         }
+        // 以@@进行分割取第一位
         return serviceNameWithGroup.split(Constants.SERVICE_INFO_SPLITER)[0];
     }
     
@@ -85,7 +87,9 @@ public class NamingUtils {
      * @param combineServiceName such as: groupName@@serviceName
      */
     public static void checkServiceNameFormat(String combineServiceName) {
+        // 以@@进行分割
         String[] split = combineServiceName.split(Constants.SERVICE_INFO_SPLITER);
+        // 判断serviceName里面是否包含@@
         if (split.length <= 1) {
             throw new IllegalArgumentException(
                     "Param 'serviceName' is illegal, it should be format as 'groupName@@serviceName'");
