@@ -34,7 +34,9 @@ public abstract class AbstractNamingInterceptorChain<T extends Interceptable>
     
     protected AbstractNamingInterceptorChain(Class<? extends NacosNamingInterceptor<T>> clazz) {
         this.interceptors = new LinkedList<>();
+        // spi加载
         interceptors.addAll(NacosServiceLoader.load(clazz));
+        // 排序
         interceptors.sort(Comparator.comparingInt(NacosNamingInterceptor::order));
     }
     
@@ -55,15 +57,19 @@ public abstract class AbstractNamingInterceptorChain<T extends Interceptable>
     
     @Override
     public void doInterceptor(T object) {
+        // 循环执行任务链
         for (NacosNamingInterceptor<T> each : interceptors) {
+            // 当interceptors为心跳检测的时候，判断class是否为InstanceBeatCheckTask
             if (!each.isInterceptType(object.getClass())) {
                 continue;
             }
+            // 处理判断intercept
             if (each.intercept(object)) {
                 object.afterIntercept();
                 return;
             }
         }
+        // 通过intercept
         object.passIntercept();
     }
 }

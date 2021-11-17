@@ -28,6 +28,13 @@ public class InstanceBeatCheckTaskInterceptorChain extends AbstractNamingInterce
     private static final InstanceBeatCheckTaskInterceptorChain INSTANCE = new InstanceBeatCheckTaskInterceptorChain();
     
     private InstanceBeatCheckTaskInterceptorChain() {
+        // SPI 进行加载类信息
+        // resources/META-INF/services/com.alibaba.nacos.naming.healthcheck.heartbeat.AbstractBeatCheckInterceptor
+        /**
+         * com.alibaba.nacos.naming.healthcheck.heartbeat.ServiceEnableBeatCheckInterceptor
+         * com.alibaba.nacos.naming.healthcheck.heartbeat.InstanceEnableBeatCheckInterceptor
+         * com.alibaba.nacos.naming.healthcheck.heartbeat.InstanceBeatCheckResponsibleInterceptor
+         */
         super(AbstractBeatCheckInterceptor.class);
     }
     

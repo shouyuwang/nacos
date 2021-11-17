@@ -44,6 +44,7 @@ public class ClientBeatCheckTaskV2 extends AbstractExecuteTask implements BeatCh
     public ClientBeatCheckTaskV2(IpPortBasedClient client) {
         this.client = client;
         this.taskId = client.getResponsibleId();
+        // 单例获取心跳检测任务链
         this.interceptorChain = InstanceBeatCheckTaskInterceptorChain.getInstance();
     }
     
@@ -64,10 +65,14 @@ public class ClientBeatCheckTaskV2 extends AbstractExecuteTask implements BeatCh
     @Override
     public void doHealthCheck() {
         try {
+            // 获取全部发布的服务列表
             Collection<Service> services = client.getAllPublishedService();
             for (Service each : services) {
+                // 获取实例publish信息
                 HealthCheckInstancePublishInfo instance = (HealthCheckInstancePublishInfo) client
                         .getInstancePublishInfo(each);
+                // 创建心跳监测任务
+                // 任务链进行处理
                 interceptorChain.doInterceptor(new InstanceBeatCheckTask(client, each, instance));
             }
         } catch (Exception e) {
@@ -77,6 +82,7 @@ public class ClientBeatCheckTaskV2 extends AbstractExecuteTask implements BeatCh
     
     @Override
     public void run() {
+        // 健康检测
         doHealthCheck();
     }
     
