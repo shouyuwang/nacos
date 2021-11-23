@@ -372,18 +372,22 @@ public class InstanceController {
     @PutMapping("/beat")
     @Secured(parser = NamingResourceParser.class, action = ActionTypes.WRITE)
     public ObjectNode beat(HttpServletRequest request) throws Exception {
-        
+        // 心跳请求
         ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        // 心跳间隔5秒
         result.put(SwitchEntry.CLIENT_BEAT_INTERVAL, switchDomain.getClientBeatInterval());
-        
+        // 获取心跳
         String beat = WebUtils.optional(request, "beat", StringUtils.EMPTY);
         RsInfo clientBeat = null;
         if (StringUtils.isNotBlank(beat)) {
             clientBeat = JacksonUtils.toObj(beat, RsInfo.class);
         }
+        // 获取cluster
         String clusterName = WebUtils
                 .optional(request, CommonParams.CLUSTER_NAME, UtilsAndCommons.DEFAULT_CLUSTER_NAME);
+        // 获取ip
         String ip = WebUtils.optional(request, "ip", StringUtils.EMPTY);
+        // 获取端口
         int port = Integer.parseInt(WebUtils.optional(request, "port", "0"));
         if (clientBeat != null) {
             if (StringUtils.isNotBlank(clientBeat.getCluster())) {
@@ -395,13 +399,17 @@ public class InstanceController {
             ip = clientBeat.getIp();
             port = clientBeat.getPort();
         }
+        // 获取namespaceId
         String namespaceId = WebUtils.optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
+        // 获取serviceId
         String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
         NamingUtils.checkServiceNameFormat(serviceName);
         Loggers.SRV_LOG.debug("[CLIENT-BEAT] full arguments: beat: {}, serviceName: {}, namespaceId: {}", clientBeat,
                 serviceName, namespaceId);
         BeatInfoInstanceBuilder builder = BeatInfoInstanceBuilder.newBuilder();
+        // 心跳实例
         builder.setRequest(request);
+        // 执行处理心跳
         int resultCode = getInstanceOperator()
                 .handleBeat(namespaceId, serviceName, ip, port, clusterName, clientBeat, builder);
         result.put(CommonParams.CODE, resultCode);

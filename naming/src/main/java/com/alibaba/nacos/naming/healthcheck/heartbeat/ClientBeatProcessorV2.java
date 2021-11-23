@@ -61,11 +61,15 @@ public class ClientBeatProcessorV2 implements BeatProcessor {
             if (Loggers.EVT_LOG.isDebugEnabled()) {
                 Loggers.EVT_LOG.debug("[CLIENT-BEAT] refresh beat: {}", rsInfo);
             }
+            // 设置最后一次心跳时间为当前时间
             instance.setLastHeartBeatTime(System.currentTimeMillis());
+            // 判断实例是否为健康状态，若为非健康状态修改为健康，发送事件
             if (!instance.isHealthy()) {
+                // 设置健康状态
                 instance.setHealthy(true);
                 Loggers.EVT_LOG.info("service: {} {POS} {IP-ENABLED} valid: {}:{}@{}, region: {}, msg: client beat ok",
                         rsInfo.getServiceName(), ip, port, rsInfo.getCluster(), UtilsAndCommons.LOCALHOST_SITE);
+                // 发送服务变更事件
                 NotifyCenter.publishEvent(new ServiceEvent.ServiceChangedEvent(service));
                 NotifyCenter.publishEvent(new ClientEvent.ClientChangedEvent(client));
             }

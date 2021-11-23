@@ -219,14 +219,18 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
     @Override
     public int handleBeat(String namespaceId, String serviceName, String ip, int port, String cluster,
             RsInfo clientBeat, BeatInfoInstanceBuilder builder) throws NacosException {
+        // 获取service
         Service service = getService(namespaceId, serviceName, true);
+        // 定义clientId
         String clientId = IpPortBasedClient.getClientId(ip + InternetAddressUtil.IP_PORT_SPLITER + port, true);
+        // 从clientManager中获取client信息
         IpPortBasedClient client = (IpPortBasedClient) clientManager.getClient(clientId);
         if (null == client || !client.getAllPublishedService().contains(service)) {
             if (null == clientBeat) {
                 return NamingResponseCode.RESOURCE_NOT_FOUND;
             }
             Instance instance = builder.setBeatInfo(clientBeat).setServiceName(serviceName).build();
+            // 如果实例已经离线，进行重新注册
             registerInstance(namespaceId, serviceName, instance);
             client = (IpPortBasedClient) clientManager.getClient(clientId);
         }
@@ -242,6 +246,7 @@ public class InstanceOperatorClientImpl implements InstanceOperator {
             clientBeat.setServiceName(serviceName);
         }
         ClientBeatProcessorV2 beatProcessor = new ClientBeatProcessorV2(namespaceId, clientBeat, client);
+        // 执行心跳请求
         HealthCheckReactor.scheduleNow(beatProcessor);
         client.setLastUpdatedTime();
         return NamingResponseCode.OK;
