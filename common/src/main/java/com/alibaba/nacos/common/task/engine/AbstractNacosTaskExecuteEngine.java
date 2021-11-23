@@ -53,6 +53,7 @@ public abstract class AbstractNacosTaskExecuteEngine<T extends NacosTask> implem
     
     @Override
     public NacosTaskProcessor getProcessor(Object key) {
+        // 从taskProcessors中获取service对应的processor，否则取默认的processor
         return taskProcessors.containsKey(key) ? taskProcessors.get(key) : defaultTaskProcessor;
     }
     
@@ -63,6 +64,7 @@ public abstract class AbstractNacosTaskExecuteEngine<T extends NacosTask> implem
     
     @Override
     public void setDefaultTaskProcessor(NacosTaskProcessor defaultTaskProcessor) {
+        // 设置默认的processor
         this.defaultTaskProcessor = defaultTaskProcessor;
     }
     

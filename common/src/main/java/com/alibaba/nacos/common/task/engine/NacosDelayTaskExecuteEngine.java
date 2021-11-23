@@ -62,7 +62,9 @@ public class NacosDelayTaskExecuteEngine extends AbstractNacosTaskExecuteEngine<
     public NacosDelayTaskExecuteEngine(String name, int initCapacity, Logger logger, long processInterval) {
         super(logger);
         tasks = new ConcurrentHashMap<>(initCapacity);
+        // 设置执行线程
         processingExecutor = ExecutorFactory.newSingleScheduledExecutorService(new NameThreadFactory(name));
+        // 设置处理器线程，每100毫秒执行一次，延迟100毫秒执行
         processingExecutor
                 .scheduleWithFixedDelay(new ProcessRunnable(), processInterval, processInterval, TimeUnit.MILLISECONDS);
     }
@@ -92,6 +94,7 @@ public class NacosDelayTaskExecuteEngine extends AbstractNacosTaskExecuteEngine<
         lock.lock();
         try {
             AbstractDelayTask task = tasks.get(key);
+            // 获取任务，比较时间
             if (null != task && task.shouldProcess()) {
                 return tasks.remove(key);
             } else {
@@ -124,10 +127,12 @@ public class NacosDelayTaskExecuteEngine extends AbstractNacosTaskExecuteEngine<
     public void addTask(Object key, AbstractDelayTask newTask) {
         lock.lock();
         try {
+            // 查询service对应的Task
             AbstractDelayTask existTask = tasks.get(key);
             if (null != existTask) {
                 newTask.merge(existTask);
             }
+            // 不存在放入tasks的map中
             tasks.put(key, newTask);
         } finally {
             lock.unlock();
@@ -138,18 +143,22 @@ public class NacosDelayTaskExecuteEngine extends AbstractNacosTaskExecuteEngine<
      * process tasks in execute engine.
      */
     protected void processTasks() {
+        // 获取tasks的所有的key
         Collection<Object> keys = getAllTaskKeys();
         for (Object taskKey : keys) {
+            // 获取任务并移除
             AbstractDelayTask task = removeTask(taskKey);
             if (null == task) {
                 continue;
             }
+            // 获取任务的processor，没有的service没有对应的processor的话取默认的processor
             NacosTaskProcessor processor = getProcessor(taskKey);
             if (null == processor) {
                 getEngineLog().error("processor not found for task, so discarded. " + task);
                 continue;
             }
             try {
+                // 处理任务
                 // ReAdd task if process failed
                 if (!processor.process(task)) {
                     retryFailedTask(taskKey, task);
@@ -171,6 +180,7 @@ public class NacosDelayTaskExecuteEngine extends AbstractNacosTaskExecuteEngine<
         @Override
         public void run() {
             try {
+                // 处理任务
                 processTasks();
             } catch (Throwable e) {
                 getEngineLog().error(e.toString(), e);

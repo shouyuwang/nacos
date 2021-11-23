@@ -57,6 +57,7 @@ public final class TaskExecuteWorker implements NacosTaskProcessor, Closeable {
         this.queue = new ArrayBlockingQueue<Runnable>(QUEUE_CAPACITY);
         this.closed = new AtomicBoolean(false);
         this.log = null == logger ? LoggerFactory.getLogger(TaskExecuteWorker.class) : logger;
+        // 内部执行器开始
         new InnerWorker(name).start();
     }
     
@@ -66,7 +67,9 @@ public final class TaskExecuteWorker implements NacosTaskProcessor, Closeable {
     
     @Override
     public boolean process(NacosTask task) {
+        // 判断任务
         if (task instanceof AbstractExecuteTask) {
+            // 向queue中放入任务
             putTask((Runnable) task);
         }
         return true;
@@ -111,8 +114,10 @@ public final class TaskExecuteWorker implements NacosTaskProcessor, Closeable {
         public void run() {
             while (!closed.get()) {
                 try {
+                    // 从队列中获取task
                     Runnable task = queue.take();
                     long begin = System.currentTimeMillis();
+                    // 执行任务
                     task.run();
                     long duration = System.currentTimeMillis() - begin;
                     if (duration > 1000L) {

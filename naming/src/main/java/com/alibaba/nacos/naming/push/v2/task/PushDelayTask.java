@@ -40,7 +40,9 @@ public class PushDelayTask extends AbstractDelayTask {
         this.service = service;
         pushToAll = true;
         targetClients = null;
+        // 设置延迟时间
         setTaskInterval(delay);
+        // 设置最后一次处理时间
         setLastProcessTime(System.currentTimeMillis());
     }
     

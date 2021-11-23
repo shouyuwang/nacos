@@ -77,6 +77,7 @@ public class ServiceStorage {
     }
     
     public ServiceInfo getPushData(Service service) {
+        // 获取serviceInfo信息
         ServiceInfo result = emptyServiceInfo(service);
         if (!ServiceManager.getInstance().containSingleton(service)) {
             return result;

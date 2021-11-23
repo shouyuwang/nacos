@@ -40,6 +40,7 @@ public class NamingExecuteTaskDispatcher {
     }
     
     public void dispatchAndExecuteTask(Object dispatchTag, AbstractExecuteTask task) {
+        // 添加任务
         executeEngine.addTask(dispatchTag, task);
     }
     

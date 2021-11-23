@@ -48,10 +48,12 @@ public class ServiceEvent extends Event {
         public ServiceChangedEvent(Service service) {
             this(service, false);
         }
-        
+        // 服务变更事件
         public ServiceChangedEvent(Service service, boolean incrementRevision) {
             super(service);
+            // 设置最后一次更新时间
             service.renewUpdateTime();
+            // 是否新增版本号
             if (incrementRevision) {
                 service.incrementRevision();
             }

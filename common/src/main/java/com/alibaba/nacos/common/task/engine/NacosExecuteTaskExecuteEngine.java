@@ -34,13 +34,16 @@ public class NacosExecuteTaskExecuteEngine extends AbstractNacosTaskExecuteEngin
     private final TaskExecuteWorker[] executeWorkers;
     
     public NacosExecuteTaskExecuteEngine(String name, Logger logger) {
+        // 任务执行器
         this(name, logger, ThreadUtils.getSuitableThreadCount(1));
     }
     
     public NacosExecuteTaskExecuteEngine(String name, Logger logger, int dispatchWorkerCount) {
         super(logger);
+        // 执行处理器
         executeWorkers = new TaskExecuteWorker[dispatchWorkerCount];
         for (int mod = 0; mod < dispatchWorkerCount; ++mod) {
+            // 循环对应任务执行器
             executeWorkers[mod] = new TaskExecuteWorker(name, mod, dispatchWorkerCount, getEngineLog());
         }
     }
@@ -61,12 +64,16 @@ public class NacosExecuteTaskExecuteEngine extends AbstractNacosTaskExecuteEngin
     
     @Override
     public void addTask(Object tag, AbstractExecuteTask task) {
+        // 获取执行器
         NacosTaskProcessor processor = getProcessor(tag);
         if (null != processor) {
+            // 如果执行器不为空，处理任务
             processor.process(task);
             return;
         }
+        // 获取worker
         TaskExecuteWorker worker = getWorker(tag);
+        // worker处理任务
         worker.process(task);
     }
     

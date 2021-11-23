@@ -67,8 +67,10 @@ public class NamingSubscriberServiceV2Impl extends SmartSubscriber implements Na
         this.clientManager = clientManager;
         this.indexesManager = indexesManager;
         this.upgradeJudgement = upgradeJudgement;
+        // 定义任务执行器
         this.delayTaskEngine = new PushDelayTaskExecuteEngine(clientManager, indexesManager, serviceStorage,
                 metadataManager, pushExecutor, switchDomain);
+        // 注册subscriber
         NotifyCenter.registerSubscriber(this, NamingEventPublisherFactory.getInstance());
         
     }
@@ -117,13 +119,16 @@ public class NamingSubscriberServiceV2Impl extends SmartSubscriber implements Na
     
     @Override
     public void onEvent(Event event) {
+        // 监听事件
         if (!upgradeJudgement.isUseGrpcFeatures()) {
             return;
         }
         if (event instanceof ServiceEvent.ServiceChangedEvent) {
+            // 收到服务变更事件
             // If service changed, push to all subscribers.
             ServiceEvent.ServiceChangedEvent serviceChangedEvent = (ServiceEvent.ServiceChangedEvent) event;
             Service service = serviceChangedEvent.getService();
+            // 执行添加任务，task对应延迟500毫秒执行
             delayTaskEngine.addTask(service, new PushDelayTask(service, PushConfig.getInstance().getPushTaskDelay()));
         } else if (event instanceof ServiceEvent.ServiceSubscribedEvent) {
             // If service is subscribed by one client, only push this client.

@@ -58,6 +58,7 @@ public class PushDelayTaskExecuteEngine extends NacosDelayTaskExecuteEngine {
         this.metadataManager = metadataManager;
         this.pushExecutor = pushExecutor;
         this.switchDomain = switchDomain;
+        // 设置默认的任务执行器
         setDefaultTaskProcessor(new PushDelayTaskProcessor(this));
     }
     
@@ -94,13 +95,16 @@ public class PushDelayTaskExecuteEngine extends NacosDelayTaskExecuteEngine {
         private final PushDelayTaskExecuteEngine executeEngine;
         
         public PushDelayTaskProcessor(PushDelayTaskExecuteEngine executeEngine) {
+            // 设置执
             this.executeEngine = executeEngine;
         }
         
         @Override
         public boolean process(NacosTask task) {
+            // 处理任务
             PushDelayTask pushDelayTask = (PushDelayTask) task;
             Service service = pushDelayTask.getService();
+            // 添加任务
             NamingExecuteTaskDispatcher.getInstance()
                     .dispatchAndExecuteTask(service, new PushExecuteTask(service, executeEngine, pushDelayTask));
             return true;
